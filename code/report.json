@@ -1,0 +1,34 @@
+{
+    "tests": [
+        {
+            "name": "Q1",
+            "max_score": 8,
+            "score": 8,
+            "output": "Q1\n----------\n\nQ1: test_cases/Q1\\test_1.py ...\nPASS\ntest_cases/Q1\\test_1.py points: 2/2\n\nQ1: test_cases/Q1\\test_2.py ...\nPASS\ntest_cases/Q1\\test_2.py points: 2/2\n\nQ1: test_cases/Q1\\test_3.py ...\nPASS\ntest_cases/Q1\\test_3.py points: 2/2\n\nQ1: test_cases/Q1\\test_4.py ...\nPASS\ntest_cases/Q1\\test_4.py points: 2/2\n\n"
+        },
+        {
+            "name": "Q2",
+            "max_score": 12,
+            "score": 12,
+            "output": "Q2\n----------\n\nQ2: test_cases/Q2\\test_1.py ...\nPASS\ntest_cases/Q2\\test_1.py points: 3/3\n\nQ2: test_cases/Q2\\test_2.py ...\nPASS\ntest_cases/Q2\\test_2.py points: 3/3\n\nQ2: test_cases/Q2\\test_3.py ...\nPASS\ntest_cases/Q2\\test_3.py points: 3/3\n\nQ2: test_cases/Q2\\test_4.py ...\nPASS\ntest_cases/Q2\\test_4.py points: 3/3\n\n"
+        },
+        {
+            "name": "Q3",
+            "max_score": 10,
+            "score": 10,
+            "output": "Q3\n----------\n\nQ3: test_cases/Q3\\test_1.py ...\nPASS\ntest_cases/Q3\\test_1.py points: 3/3\n\nQ3: test_cases/Q3\\test_2.py ...\nPASS\ntest_cases/Q3\\test_2.py points: 3/3\n\nQ3: test_cases/Q3\\test_3.py ...\nPASS\ntest_cases/Q3\\test_3.py points: 4/4\n\n"
+        },
+        {
+            "name": "Q4",
+            "max_score": 5,
+            "score": 5,
+            "output": "Q4\n----------\n\nQ4: test_cases/Q4\\test_1.py ...\nPASS\ntest_cases/Q4\\test_1.py points: 2/2\n\nQ4: test_cases/Q4\\test_2.py ...\nPASS\ntest_cases/Q4\\test_2.py points: 3/3\n\n"
+        },
+        {
+            "name": "Q5",
+            "max_score": 4,
+            "score": 4,
+            "output": "Q5\n----------\n\nQ5: test_cases/Q5\\test_1.py ...\nPASS\ntest_cases/Q5\\test_1.py points: 4/4\n\n"
+        }
+    ]
+}
