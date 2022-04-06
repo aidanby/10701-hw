@@ -228,25 +228,6 @@ def NNBackward(x, y, alpha, beta, z, y_hat):
 
 
 def SGD(tr_x, tr_y, valid_x, valid_y, hidden_units, num_epoch, init_flag, learning_rate):
-    """
-    Arguments:
-        - tr_x: training data input (N_train, M)
-        - tr_y: training labels (N_train, 1)
-        - valid_x: validation data input (N_valid, M)
-        - valid_y: validation labels (N_valid, 1)
-        - hidden_units: Number of hidden units
-        - num_epoch: Number of epochs
-        - init_flag:
-            - True: Initialize weights to random values in Uniform[-0.1, 0.1], bias to 0
-            - False: Initialize weights and bias to 0
-        - learning_rate: Learning rate
-
-    Returns:
-        - alpha weights
-        - beta weights
-        - train_entropy (length num_epochs): mean cross-entropy loss for training data for each epoch
-        - valid_entropy (length num_epochs): mean cross-entropy loss for validation data for each epoch
-    """
     if init_flag:
         alpha = np.random.uniform(-0.1, 0.1, (hidden_units, tr_x.shape[1]))
         alpha = np.insert(alpha, 0, 0, axis=1)
@@ -260,6 +241,7 @@ def SGD(tr_x, tr_y, valid_x, valid_y, hidden_units, num_epoch, init_flag, learni
     valid_x = np.insert(valid_x, 0, 1, axis=1)
     tr_losses = []
     val_losses = []
+    epoch_list = []
     for e in range(num_epoch):
         j = 0
         for i in range(len(tr_y)):
@@ -283,6 +265,14 @@ def SGD(tr_x, tr_y, valid_x, valid_y, hidden_units, num_epoch, init_flag, learni
             x, a, z, b, y_hat, J = NNForward(x.reshape(1, -1), y, alpha, beta)
             j += J
         val_losses.append(j / len(valid_y))
+        epoch_list.append(e)
+
+    plt.plot(epoch_list, tr_losses, label="training")
+    plt.plot(epoch_list, val_losses, label="validation")
+    plt.xlabel("epoches")
+    plt.ylabel("average cross-entropy")
+    plt.legend()
+    plt.show()
 
     return alpha, beta, tr_losses, val_losses
 
@@ -332,40 +322,12 @@ def prediction(tr_x, tr_y, valid_x, valid_y, tr_alpha, tr_beta):
 ### FEEL FREE TO WRITE ANY HELPER FUNCTIONS
 
 def train_and_valid(X_train, y_train, X_val, y_val, num_epoch, num_hidden, init_rand, learning_rate):
-    """
-    Main function to train and validate your neural network implementation.
-
-    Arguments:
-        - X_train: training input in (N_train, M) array. Each value is binary, in {0,1}.
-        - y_train: training labels in (N_train, 1) array. Each value is in {0,1,...,K-1},
-            where K is the number of classes.
-        - X_val: validation input in (N_val, M) array. Each value is binary, in {0,1}.
-        - y_val: validation labels in (N_val, 1) array. Each value is in {0,1,...,K-1},
-            where K is the number of classes.
-        - num_epoch: Positive integer representing the number of epochs to train (i.e. number of
-            loops through the training data).
-        - num_hidden: Positive integer representing the number of hidden units.
-        - init_flag: Boolean value of True/False
-            - True: Initialize weights to random values in Uniform[-0.1, 0.1], bias to 0
-            - False: Initialize weights and bias to 0
-        - learning_rate: Float value specifying the learning rate for SGD.
-
-    Returns:
-        - loss_per_epoch_train (length num_epochs): A list of float values containing the mean cross entropy on training data after each SGD epoch
-        - loss_per_epoch_val (length num_epochs): A list of float values containing the mean cross entropy on validation data after each SGD epoch
-        - err_train: Float value containing the training error after training (equivalent to 1.0 - accuracy rate)
-        - err_val: Float value containing the validation error after training (equivalent to 1.0 - accuracy rate)
-        - y_hat_train: A list of integers representing the predicted labels for training data
-        - y_hat_val: A list of integers representing the predicted labels for validation data
-    """
-    ### YOUR CODE HERE
     loss_per_epoch_train = []
     loss_per_epoch_val = []
     err_train = None
     err_val = None
     y_hat_train = None
     y_hat_val = None
-
     alpha_weights, beta_weights, train_entropy, val_entropy = SGD(X_train, y_train, X_val, y_val, num_hidden, num_epoch,
                                                                   init_rand, learning_rate)
     err_train, err_val, y_hat_train, y_hat_val = prediction(X_train, y_train, X_val, y_val, alpha_weights, beta_weights)
@@ -381,21 +343,22 @@ if __name__ == "__main__":
     num_epoch = 100
     cross_ent_train = []
     cross_ent_valid = []
-    for num_hidden in num_hiddens:
-        train_entropy, val_entropy, err_train, err_val, y_hat_train, y_hat_val = train_and_valid(X_train, y_train,
-                                                                                                 X_val, y_val,
-                                                                                                 num_epoch, num_hidden,
-                                                                                                 init_rand,
-                                                                                                 learning_rate)
-        cross_ent_train.append(np.mean(train_entropy))
-        cross_ent_valid.append(np.mean(val_entropy))
-    plt.plot(num_hiddens, cross_ent_train, label="training")
-    plt.plot(num_hiddens, cross_ent_valid, label="validation")
-    plt.xlabel("number of hidden units")
-    plt.ylabel("cross-entropy")
-    plt.legend()
-    plt.show()
+    # for num_hidden in num_hiddens:
+    #     train_entropy, val_entropy, err_train, err_val, y_hat_train, y_hat_val = train_and_valid(X_train, y_train,
+    #                                                                                              X_val, y_val,
+    #                                                                                              num_epoch, num_hidden,
+    #                                                                                              init_rand,
+    #                                                                                              learning_rate)
+    #     cross_ent_train.append(np.mean(train_entropy))
+    #     cross_ent_valid.append(np.mean(val_entropy))
+    # plt.plot(num_hiddens, cross_ent_train, label="training")
+    # plt.plot(num_hiddens, cross_ent_valid, label="validation")
+    # plt.xlabel("number of hidden units")
+    # plt.ylabel("cross-entropy")
+    # plt.legend()
+    # plt.show()
 
+    num_hidden = 50
     cross_ent_train = []
     cross_ent_valid = []
     learning_rates = [0.1,0.01,0.001]
@@ -407,11 +370,6 @@ if __name__ == "__main__":
                                                                                                  learning_rate)
         cross_ent_train.append(np.mean(train_entropy))
         cross_ent_valid.append(np.mean(val_entropy))
-    plt.plot(learning_rates, cross_ent_train, label="training")
-    plt.plot(learning_rates, cross_ent_valid, label="validation")
-    plt.xlabel("learning rates")
-    plt.ylabel("cross-entropy")
-    plt.legend()
-    plt.show()
+
 
 
