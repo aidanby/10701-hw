@@ -13,6 +13,62 @@ def read_data(file):
     return data_x, data_y
 
 
+f = None
+description = None
+boundary = 0
+y_pred = None
+accuracy = 0
+
+
+def ds_fit(train_x, train_y, weights=None):
+    if weights is None:
+        weights = np.ones_like(train_y)
+    h = [(x[0], y) for (x, y) in zip(train_x, train_y)]
+    v = [(x[1], y) for (x, y) in zip(train_x, train_y)]
+    # Compute horizontal boundary
+    lowest_err = len(train_y)
+    for i in range(len(h) + 1):
+        # Horizontal
+        bound = h[i][0] if i < len(h) else float("inf")
+        f1 = lambda x: 1 if ((x[0] < bound and x[1] > 0) or (x[0] >= bound and x[1] < 0)) else 0
+        f2 = lambda x: 1 if ((x[0] < bound and x[1] < 0) or (x[0] >= bound and x[1] > 0)) else 0
+        err1 = np.sum(weights * np.array(list(map(f1, h))))
+        err2 = np.sum(weights * np.array(list(map(f2, h))))
+        if err1 < lowest_err:
+            lowest_err = err1
+            description = "vertical <{} -1".format(
+                boundary)  # horizontal axis < bound is classified as -1
+            f = lambda x: (-1 if x[0] < boundary else 1)
+        if err2 < lowest_err:
+            lowest_err = err2
+            description = "vertical <{} 1".format(boundary)
+            f = lambda x: (1 if x[0] < boundary else -1)
+        # Vertical
+        bound = v[i][0] if i < len(v) else float("inf")
+        f1 = lambda x: 1 if ((x[0] < bound and x[1] > 0) or (x[0] >= bound and x[1] < 0)) else 0
+        f2 = lambda x: 1 if ((x[0] < bound and x[1] < 0) or (x[0] >= bound and x[1] > 0)) else 0
+        err1 = np.sum(weights * np.array(list(map(f1, v))))
+        err2 = np.sum(weights * np.array(list(map(f2, v))))
+        if err1 < lowest_err:
+            lowest_err = err1
+            description = "horizontal <{} -1".format(boundary)
+            f = lambda x: (-1 if x[1] < boundary else 1)
+        if err2 < lowest_err:
+            lowest_err = err2
+            description = "horizontal <{} 1".format(boundary)
+            f = lambda x: (1 if x[1] < boundary else -1)
+    accuracy = 1 - lowest_err / len(train_y)
+    return f
+
+
+def ds_predict(f, test_x):
+    return np.array(list(map(f, test_x)))
+
+
+def compute_error(y, y_pred):
+    return np.sum(np.abs(y + y_pred)) / (2 * y.shape[0])
+
+
 class DecisionStump:
     """
     1-level decision tree, weak classifier for the adaboost algorithm.
@@ -78,6 +134,60 @@ class DecisionStump:
         return self.accuracy
 
 
+iteration = 0
+learners = []
+weighted_error = []
+votes = []
+weights = None
+y_pred = None
+accuracy = 0
+
+
+def ada_fit(train_x, train_y, iteration=1):
+    weights = np.ones(train_y.shape[0])
+    for k in range(iteration):
+        f = ds_fit(train_x, train_y, weights)
+        train_y_pred = ds_predict(train_x)
+        err = np.sum(weights * np.abs(train_y - train_y_pred) / 2) / np.sum(weights)
+        vote = np.log((1 - err) / err) / 2
+        weights = weights * np.exp(-train_y * vote * train_y_pred)  # update weights
+        votes.append(vote)
+        learners.append(f)
+
+
+def ada_predict(test_x):
+    s = np.zeros(test_x.shape[0])
+    for k in range(iteration):
+        s += votes[k] * ds_predict(learners[k], test_x)
+    return np.array(list(map(lambda x: -1 if x < 0 else 1, s / sum(votes))))
+
+
+def plot_result(train_x, train_y, test_x, test_y, iteration=1):
+    plt.figure()
+    accuracy = []
+    iteration = 0
+    weights = np.ones(train_y.shape[0])
+    for k in range(iteration):
+        iteration = k + 1
+        model = DecisionStump()
+        model.fit(train_x, train_y, weights)
+        train_y_pred = model.predict(train_x)
+        err = np.sum(weights * np.abs(train_y - train_y_pred) / 2) / np.sum(weights)
+        vote = np.log((1 - err) / err) / 2
+        weights = weights * np.exp(-train_y * vote * train_y_pred)
+        votes.append(vote)
+        learners.append(model)
+        test_y_pred = ada_predict(test_x)
+        accuracy.append(compute_error(test_y, test_y_pred))
+    plt.plot([i + 1 for i in range(iteration)], accuracy)
+    plt.xlabel("Number of iterations")
+    plt.ylabel("Accuracy")
+    plt.title("Test accuracy verses number of iterations")
+    plt.savefig("1.png")
+
+    return accuracy
+
+
 class AdaBoost:
     def __init__(self):
         self.iteration = 0
@@ -140,9 +250,9 @@ class AdaBoost:
 if __name__ == "__main__":
     train_x, train_y = read_data("data_22/train_adaboost.csv")
     test_x, test_y = read_data("data_22/test_adaboost.csv")
-    AB = AdaBoost()
-    AB.plot_result(train_x, train_y, test_x, test_y, iteration=50)  # 5.1 plot
-    print(AB.accuracy)  # 5.2 test accuracy after 50 iterations
-    print(AB.learners[0].description)  # 5.3
-    print(AB.learners[1].description)
-    print(AB.learners[2].description)
+    # AB = AdaBoost()
+    plot_result(train_x, train_y, test_x, test_y, iteration=50)  # 5.1 plot
+    # print(AB.accuracy)  # 5.2 test accuracy after 50 iterations
+    # print(AB.learners[0].description)  # 5.3
+    # print(AB.learners[1].description)
+    # print(AB.learners[2].description)
