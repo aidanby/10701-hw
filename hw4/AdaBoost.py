@@ -2,17 +2,20 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 
+
 def read_data(file):
     df = pd.read_csv(file)
     data_x = np.array(df.iloc[:, : 2])
     data_y = np.array(df.iloc[:, 2])
     return data_x, data_y
 
+
 f = None
 description = []
 boundary = 0
 y_pred = None
 accuracy = 0
+
 
 def ds_fit(train_x, train_y, weights=None):
     if weights is None:
@@ -57,8 +60,10 @@ def ds_fit(train_x, train_y, weights=None):
 def ds_predict(f, test_x):
     return np.array(list(map(f, test_x)))
 
+
 def compute_error(y, y_pred):
     return np.sum(np.abs(y + y_pred)) / (2 * y.shape[0])
+
 
 iteration = 0
 learners = []
@@ -88,6 +93,48 @@ def ada_predict(test_x):
     return np.array(list(map(lambda x: -1 if x < 0 else 1, s / sum(votes))))
 
 
+def plot_weights(model, train_y, train_x, weights):
+    pos_x = train_x[train_y == 1]
+    neg_x = train_x[train_y == -1]
+    weights = weights ** 2 * 100
+    pos_weights = weights[train_y == 1]
+    neg_weights = weights[train_y == -1]
+    db = description[1]
+
+    plt.figure(figsize=(6, 6))
+    plt.scatter(neg_x[:, 0], neg_x[:, 1], s=neg_weights, color='red', marker='_')
+    plt.scatter(pos_x[:, 0], pos_x[:, 1], s=pos_weights, color='blue', marker='+')
+
+    plt.title('Weighted Data', fontsize=16)
+    plt.legend(['-1', '+1'], fontsize=16)
+    plt.xlabel('$x_1$', fontsize=16)
+    plt.ylabel('$x_2$', fontsize=16)
+    plt.show()
+
+    if 'vert' in model.description[0]:
+        print('hi')
+        plt.figure(figsize=(6, 6))
+        plt.scatter(neg_x[:, 0], neg_x[:, 1], s=neg_weights, color='red', marker='_')
+        plt.scatter(pos_x[:, 0], pos_x[:, 1], s=pos_weights, color='blue', marker='+')
+        plt.plot([db, db], [-2, 2], color='black', label='_nolegend_')
+        plt.fill([-2, -2, db, db], [-2, 2, 2, -2], color='red', alpha=0.1, label='_nolegend_')
+        plt.fill([2, 2, db, db], [-2, 2, 2, -2], color='blue', alpha=0.1, label='_nolegend_')
+    else:
+        plt.figure(figsize=(6, 6))
+        plt.scatter(neg_x[:, 0], neg_x[:, 1], s=neg_weights, color='red', marker='_')
+        plt.scatter(pos_x[:, 0], pos_x[:, 1], s=pos_weights, color='blue', marker='+')
+        plt.plot([-2, 2], [db, db], color='black', label='_nolegend_')
+        plt.fill([-2, -2, 2, 2], [-2, db, db, -2], color='red', alpha=0.1, label='_nolegend_')
+        plt.fill([-2, -2, 2, 2], [2, db, db, 2], color='blue', alpha=0.1, label='_nolegend_')
+
+    plt.title('Weighted Data w/ Tree', fontsize=16)
+    plt.legend(['-1', '+1'], fontsize=16)
+    plt.xlabel('$x_1$', fontsize=16)
+    plt.ylabel('$x_2$', fontsize=16)
+    plt.show()
+    print('here')
+
+
 def plot_result(train_x, train_y, test_x, test_y, iteration=1):
     plt.figure()
     accuracy = []
@@ -111,10 +158,7 @@ def plot_result(train_x, train_y, test_x, test_y, iteration=1):
     return accuracy
 
 
-
-
 if __name__ == "__main__":
     train_x, train_y = read_data("data_22/train_adaboost.csv")
     test_x, test_y = read_data("data_22/test_adaboost.csv")
     plot_result(train_x, train_y, test_x, test_y, iteration=50)
-
