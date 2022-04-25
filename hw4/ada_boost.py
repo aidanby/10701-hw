@@ -146,19 +146,20 @@ def pca_analysis():
     import sklearn
     from sklearn.decomposition import PCA
     y = np.linalg.svd(x)
-    print(np.rint(y[0]))
-    print(np.rint(y[1]))
-    print(np.rint(y[2]))
+    print(y[0])
+    print(y[1])
+    print(y[2])
     pca = PCA(n_components=1)
     a = pca.fit_transform(x)
     print(np.var(a))
-    print(np.linalg.norm(x - pca.inverse_transform(a)))
+    print(np.mean((x-pca.inverse_transform(a))**2))
 
 
 if __name__ == "__main__":
-    train_x, train_y = read_data("data_22/train_adaboost.csv")
-    test_x, test_y = read_data("data_22/test_adaboost.csv")
-    plot_acc(train_x, train_y, test_x, test_y, iteration=50)
 
-    # pca_analysis()
+    # train_x, train_y = read_data("data_22/train_adaboost.csv")
+    # test_x, test_y = read_data("data_22/test_adaboost.csv")
+    # plot_acc(train_x, train_y, test_x, test_y, iteration=50)
+
+    pca_analysis()
 
